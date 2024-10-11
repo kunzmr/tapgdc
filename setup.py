@@ -6,6 +6,7 @@ LONG_DESCRIPTION = 'A collection of methods for analyzing Temporal Analysis of P
 
 # Setting up
 # to create documentation (in docs) -> sphinx-aipdoc -o . .. -> make clean -> make html
+# initial build of docs -> sphinx-build -M html docs/source/ docs/build
 setup(
         name="tapgdc", 
         version=VERSION,
