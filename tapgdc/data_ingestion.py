@@ -2,6 +2,8 @@ import json
 import nptdms
 import numpy as np
 import pandas as pd
+import os
+import glob
 
 def init_pulse_iteration(
         amu:float = 40.0, 
@@ -189,6 +191,15 @@ def save_table(meta_data:dict, tabular_data:pd.DataFrame, save_path:str) -> None
         out (None): None.
 
     """
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    if not os.path.exists(save_path + '/metadata/'):
+        os.makedirs(save_path + '/metadata/')
+
+    if not os.path.exists(save_path + '/timeseries/'):
+        os.makedirs(save_path + '/timeseries/')
+
     tmp_path = save_path + '/metadata/' + meta_data['ID'] + '.json'
     with open(tmp_path, 'w') as f:
         json.dump(meta_data, f)
@@ -271,3 +282,14 @@ def tdms2table(meta_data:dict, file_path:str, save_path:str) -> None:
     meta_data['pulse_iteration'] = pulse_iteration
 
     save_table(meta_data, tabular_data, save_path)
+
+
+def tdms_extract(dir_path, save_path, time_delta = 0.001):
+    tdms_files = glob.glob(dir_path + '/**/*.tdms', recursive=True)
+    tdms_names = [i.replace('/', '_').replace('.tdms', '').replace(' ', '_') for i in tdms_files]
+    meta_data = init_metadata()
+    for i, tmp_file in enumerate(tdms_files):
+        meta_data['ID'] = '0' * (4 - len(str(i))) + str(i)
+        meta_data['name'] = tdms_names[int(i)]
+        meta_data['time_delta_s'] = time_delta
+        tdms2table(meta_data, tmp_file, save_path)
